@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
 import {
@@ -682,6 +683,7 @@ export class Dom3DViewer {
   _loadGLB(name) {
     if (!this.gltfCache.has(name)) {
       const loader = new GLTFLoader();
+      loader.setMeshoptDecoder(MeshoptDecoder);
       this.gltfCache.set(name, new Promise((res, rej) => loader.load(this.opts.fileUrl(name), (g) => res(g.scene), undefined, rej)));
     }
     return this.gltfCache.get(name);

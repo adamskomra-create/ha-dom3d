@@ -364,24 +364,39 @@ async function loadFiles() {
   try { store.files = await (await fetch(api("api/files"))).json(); } catch { store.files = []; }
 }
 
+let uploadDone = null;
+async function uploadSelected(f) {
+  if (!f) return;
+  if (/\.json$/i.test(f.name)) { importJson(await f.text()); return; }
+  status(`Wgrywam ${f.name} (${(f.size / 1e6).toFixed(1)} MB)…`);
+  const fd = new FormData();
+  fd.append("file", f, f.name);
+  const r = await fetch(api("api/files"), { method: "POST", body: fd });
+  if (!r.ok) { status("Błąd: " + (await r.text())); return; }
+  const j = await r.json();
+  await loadFiles();
+  status("Wgrano " + j.files.join(", "));
+  const cb = uploadDone; uploadDone = null;
+  if (cb) cb(j.files[0]); else { viewer.setDom(store.dom); renderToolOpts(); refreshProps(); }
+}
+
 function uploadFile(accept, done) {
-  const inp = document.createElement("input");
-  inp.type = "file";
+  const inp = $("#fileinput");
   inp.accept = accept === "*" ? ".glb,.gltf,image/*" : accept;
-  inp.onchange = async () => {
-    const f = inp.files[0];
-    if (!f) return;
-    status(`Wgrywam ${f.name} (${(f.size / 1e6).toFixed(1)} MB)…`);
-    const fd = new FormData();
-    fd.append("file", f, f.name);
-    const r = await fetch(api("api/files"), { method: "POST", body: fd });
-    if (!r.ok) { status("Błąd: " + (await r.text())); return; }
-    const j = await r.json();
-    await loadFiles();
-    status("Wgrano " + j.files.join(", "));
-    done && done(j.files[0]);
-  };
+  uploadDone = done || null;
+  inp.value = "";
   inp.click();
+}
+
+function importJson(text) {
+  try {
+    const d = normalize(JSON.parse(text));
+    store.commit(() => { store.dom = d; }, { rebuild: false });
+    viewer.setDom(store.dom, false);
+    viewer.setFloor(store.dom.floors[store.dom.floors.length - 1].id);
+    renderFloors(); refreshProps();
+    status("Zaimportowano. Kliknij Zapisz, żeby zachować.");
+  } catch (e) { status("Błąd importu: " + e.message); }
 }
 
 function download(name, text) {
@@ -445,22 +460,8 @@ async function main() {
   $("#redo").onclick = () => store.redo();
   $("#save").onclick = () => store.save();
   $("#exp").onclick = () => download("dom.json", JSON.stringify(store.dom, null, 1));
-  $("#imp").onclick = () => {
-    const inp = document.createElement("input");
-    inp.type = "file"; inp.accept = ".json,application/json";
-    inp.onchange = async () => {
-      const text = await inp.files[0].text();
-      try {
-        const d = normalize(JSON.parse(text));
-        store.commit(() => { store.dom = d; }, { rebuild: false });
-        viewer.setDom(store.dom, false);
-        viewer.setFloor(store.dom.floors[store.dom.floors.length - 1].id);
-        renderFloors(); refreshProps();
-        status("Zaimportowano. Kliknij Zapisz, żeby zachować.");
-      } catch (e) { status("Błąd importu: " + e.message); }
-    };
-    inp.click();
-  };
+  $("#imp").onclick = () => uploadFile(".json,application/json");
+  $("#fileinput").onchange = (e) => uploadSelected(e.target.files[0]);
   window.addEventListener("beforeunload", (e) => { if (store.dirty) { e.preventDefault(); e.returnValue = ""; } });
   setTool("select");
   store.setDirty(false);

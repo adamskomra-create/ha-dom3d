@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+- Modele .glb skompresowane meshopt (np. z gltf-transform) są obsługiwane.
+- Import JSON i wgrywanie plików przez jedno stałe pole pliku.
+
 ## 0.1.1
 - Poprawka: dodatek nie widział tokenu Supervisora (start przez with-contenv), więc nie łączył się z HA.
 

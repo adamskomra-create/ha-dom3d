@@ -1,4 +1,5 @@
 import { Dom3DViewer, escapeHtml } from "./viewer.js";
+import { RenderView } from "./renderview.js";
 import { Editor, findAny } from "./editor.js";
 import {
   FURN, LIGHT_KINDS, SENSOR_KINDS, FLOOR_FINISH, normalize, uid, wallLen, polyArea, round, friendly,
@@ -84,12 +85,14 @@ function connectWS() {
     if (m.type === "states") {
       store.states = Object.fromEntries(m.states.map((s) => [s.entity_id, s]));
       viewer.setStates(store.states);
+      if (window.dom3d.rv) window.dom3d.rv.setStates(store.states);
       fillDatalists();
       if (m.states.length) { $("#ha").className = "ok"; loadAreas(); }
       refreshProps();
     } else if (m.type === "state") {
       if (m.state) store.states[m.entity_id] = m.state; else delete store.states[m.entity_id];
       viewer.updateState(m.entity_id, m.state);
+      if (window.dom3d.rv) window.dom3d.rv.setStates(store.states);
     } else if (m.type === "ws_result" && wsWait.has(m.id)) {
       wsWait.get(m.id)(m);
       wsWait.delete(m.id);
@@ -420,14 +423,23 @@ async function main() {
       else if (hit.entity) { const st = store.states[hit.entity]; status(`${friendly(st, hit.entity)}: ${st ? st.state : "?"}`); }
     },
   });
-  window.dom3d = { viewer, store };
+  const rv = new RenderView($("#view"), { dom, fileUrl: (n) => api("files/" + encodeURIComponent(n)), onClick: (hit) => toggleEntity(hit.entity) });
+  rv.setFloor(viewer.floorId);
+  window.dom3d = { viewer, store, rv };
   editor = new Editor(viewer, store, { status, setTool: (t) => setTool(t) });
   window.dom3d.editor = editor;
 
   $("#tools").innerHTML = TOOLS.map(([id, ico, title]) => `<button data-tool="${id}" title="${title}"><span>${ico}</span><small>${title.replace(/ \(.\)$/, "")}</small></button>`).join("");
   $("#tools").onclick = (e) => { const b = e.target.closest("button"); if (b) setTool(b.dataset.tool); };
   renderFloors();
-  $("#floor").onchange = (e) => { viewer.setFloor(e.target.value); store.select(null); };
+  const syncRenderBtn = () => {
+    const ok = RenderView.available(store.dom, viewer.floorId);
+    $("#rmode").style.display = ok ? "" : "none";
+    if (!ok && rv.el.classList.contains("on")) rv.show(false);
+  };
+  $("#floor").onchange = (e) => { viewer.setFloor(e.target.value); rv.setDom(store.dom); rv.setFloor(e.target.value); store.select(null); syncRenderBtn(); };
+  $("#rmode").onclick = () => { rv.setDom(store.dom); rv.setFloor(viewer.floorId); rv.setStates(store.states); rv.show(!rv.el.classList.contains("on")); $("#rmode").classList.toggle("dirty", rv.el.classList.contains("on")); };
+  syncRenderBtn();
   $("#addfloor").onclick = () => {
     const top = store.dom.floors[store.dom.floors.length - 1];
     const name = prompt("Nazwa piętra", "Nowe piętro");

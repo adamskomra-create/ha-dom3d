@@ -44,7 +44,7 @@ def _token():
 TOKEN = _token()
 HA_WS = os.environ.get("DOM3D_HA_WS", "ws://supervisor/core/websocket")
 PORT = int(os.environ.get("DOM3D_PORT", "8099"))
-VERSION = "0.1.7"
+VERSION = "0.2.0"
 
 ALLOWED_EXT = {".glb", ".gltf", ".png", ".jpg", ".jpeg", ".webp", ".hdr"}
 WS_ALLOWED = {"get_states", "config/area_registry/list", "config/floor_registry/list",
@@ -113,6 +113,13 @@ def publish(dom=None):
         for m in dom.get(key, []):
             if m.get("file"):
                 used.add(m["file"])
+    for rnd in dom.get("renders", []):
+        for k in ("day", "night"):
+            if rnd.get(k):
+                used.add(rnd[k])
+        for L in rnd.get("lights", []):
+            if L.get("file"):
+                used.add(L["file"])
     for it in dom.get("items", []):
         if it.get("glb"):
             used.add(it["glb"])

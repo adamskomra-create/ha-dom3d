@@ -70,11 +70,11 @@ export function emptyDom() {
   return {
     version: 1, name: "Mój dom", north: 0, lat: 52.41, lon: 16.85,
     floors: [{ id: "f0", name: "Parter", level: 0, elev: 0, height: 2.6 }],
-    walls: [], rooms: [], items: [], lights: [], sensors: [], models: [], stairs: [], backgrounds: [],
+    walls: [], rooms: [], items: [], lights: [], sensors: [], models: [], stairs: [], backgrounds: [], renders: [],
   };
 }
 
-export const COLLECTIONS = ["walls", "rooms", "items", "lights", "sensors", "models", "stairs", "backgrounds"];
+export const COLLECTIONS = ["walls", "rooms", "items", "lights", "sensors", "models", "stairs", "backgrounds", "renders"];
 
 export function normalize(dom) {
   dom = dom && typeof dom === "object" ? dom : emptyDom();

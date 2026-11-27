@@ -38,7 +38,7 @@ Inne:
 ## Karta na dashboard
 
 1. Zapisz projekt w panelu - na dole panelu (bez zaznaczenia) zobaczysz adres danych.
-2. **Ustawienia → Panele → ⋮ → Zasoby → Dodaj**: `/local/dom3d/dom3d-card.js?v=0.1.7`, typ **Moduł JavaScript**.
+2. **Ustawienia → Panele → ⋮ → Zasoby → Dodaj**: `/local/dom3d/dom3d-card.js?v=0.2.0`, typ **Moduł JavaScript**.
 3. Dodaj kartę (YAML):
 
 ```yaml
@@ -54,6 +54,15 @@ rotate: 0          # obrót planu na ekranie (°)
 Kliknięcie lampy przełącza ją, kliknięcie czujki albo pokoju otwiera okno szczegółów encji.
 
 > Dane karty leżą w `/config/www/dom3d/<losowy-adres>/` i są dostępne pod `/local/...` jak każdy plik w `www` - bez logowania, ale pod losowym, trudnym do zgadnięcia adresem.
+
+## Tryb Render (fotorealistyczny rzut + światło z HA)
+
+Dla piętra możesz dodać `renders`: rzut z góry wyrenderowany w Blenderze (dzień i noc) oraz osobną warstwę światła każdej lampy. Karta i panel nakładają warstwy włączonych lamp (`mix-blend-mode: plus-lighter`), ściemniają je jasnością z encji i przenikają dzień w noc według `sun.sun`. W karcie: `view: render`, przyciski 2D / 3D / Render.
+
+```json
+"renders": [{"floor": "p1", "bounds": [x0, x1, y0, y1], "day": "dzien.webp", "night": "noc.webp",
+  "lights": [{"light": "<id lampy>", "file": "lampa.webp"}]}]
+```
 
 ## Blender
 

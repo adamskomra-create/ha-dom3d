@@ -1,7 +1,8 @@
 import { Dom3DViewer } from "./viewer.js";
+import { RenderView } from "./renderview.js";
 import { normalize } from "./model.js";
 
-const VERSION = "0.1.7";
+const VERSION = "0.2.0";
 
 class Dom3DCard extends HTMLElement {
   setConfig(config) {
@@ -18,6 +19,7 @@ class Dom3DCard extends HTMLElement {
     if (this.viewer && (first || hass.states !== this._lastStates)) {
       this._lastStates = hass.states;
       this.viewer.setStates(hass.states);
+      if (this.rv) this.rv.setStates(hass.states);
     }
   }
 
@@ -47,7 +49,7 @@ class Dom3DCard extends HTMLElement {
           background:rgba(255,255,255,.85);color:#111;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2)}
         .bar button.on{background:#2563eb;color:#fff}
         .bar .sp{flex:1}
-        #v{height:${c.height};width:100%}
+        #v{height:${c.height};width:100%;position:relative}
         .err{padding:16px;color:var(--error-color,#c00)}
       </style>
       <ha-card><div class="bar"></div><div id="v"></div></ha-card>`;
@@ -70,7 +72,11 @@ class Dom3DCard extends HTMLElement {
     });
     const fl = dom.floors.find((f) => f.id === c.floor || f.name === c.floor);
     if (fl) this.viewer.setFloor(fl.id);
-    if (this._hass) this.viewer.setStates(this._hass.states);
+    this.rv = new RenderView(v, { dom, shadowRoot: root, fileUrl: (n) => c.data + "files/" + encodeURIComponent(n), onClick: (hit) => this._click(hit), hotspots: c.hotspots !== false });
+    this.rv.setFloor(this.viewer.floorId);
+    this.renderMode = c.view === "render" && RenderView.available(dom, this.viewer.floorId);
+    this.rv.show(this.renderMode);
+    if (this._hass) { this.viewer.setStates(this._hass.states); this.rv.setStates(this._hass.states); }
     this._bar();
     this._built = true;
     this._building = false;
@@ -87,12 +93,28 @@ class Dom3DCard extends HTMLElement {
     const bar = this.shadowRoot.querySelector(".bar");
     const c = this._config;
     const fl = this._dom.floors;
+    const fid = this.viewer.floorId;
     let h = "";
-    if (c.floors && fl.length > 1) h += [...fl].reverse().map((f) => `<button data-f="${f.id}" class="${f.id === this.viewer.floorId ? "on" : ""}">${f.short || f.name}</button>`).join("");
-    h += `<span class="sp"></span><button data-m="1">${this.viewer.mode === "top" ? "3D" : "2D"}</button>`;
+    if (c.floors && fl.length > 1) h += [...fl].reverse().map((f) => `<button data-f="${f.id}" class="${f.id === fid ? "on" : ""}">${f.short || f.name}</button>`).join("");
+    h += `<span class="sp"></span>`;
+    const modes = [["top", "2D"], ["3d", "3D"]];
+    if (RenderView.available(this._dom, fid)) modes.push(["render", "Render"]);
+    const cur = this.renderMode ? "render" : this.viewer.mode;
+    h += modes.map(([m, l]) => `<button data-m="${m}" class="${m === cur ? "on" : ""}">${l}</button>`).join("");
     bar.innerHTML = h;
-    bar.querySelectorAll("[data-f]").forEach((b) => (b.onclick = () => { this.viewer.setFloor(b.dataset.f); this._bar(); }));
-    bar.querySelector("[data-m]").onclick = () => { this.viewer.setMode(this.viewer.mode === "top" ? "3d" : "top"); this._bar(); };
+    bar.querySelectorAll("[data-f]").forEach((b) => (b.onclick = () => {
+      this.viewer.setFloor(b.dataset.f);
+      this.rv.setFloor(b.dataset.f);
+      if (this.renderMode && !RenderView.available(this._dom, b.dataset.f)) { this.renderMode = false; this.rv.show(false); }
+      this._bar();
+    }));
+    bar.querySelectorAll("[data-m]").forEach((b) => (b.onclick = () => {
+      const m = b.dataset.m;
+      this.renderMode = m === "render";
+      this.rv.show(this.renderMode);
+      if (!this.renderMode && this.viewer.mode !== m) this.viewer.setMode(m);
+      this._bar();
+    }));
   }
 
   _click(hit) {

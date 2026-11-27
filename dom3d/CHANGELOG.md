@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0
+- Tryb "Render": fotorealistyczny rzut z Blendera (dzień/noc przenikane wg sun.sun) + warstwa światła dla każdej lampy, włączana i ściemniana stanem encji. Klikalne punkty lamp.
+- Karta: przełącznik 2D / 3D / Render, opcja `view: render`, `hotspots: false`.
+
 ## 0.1.7
 - Nowy mebel: krzesło typu JANINGE (smukłe nogi, płaskie oparcie).
 

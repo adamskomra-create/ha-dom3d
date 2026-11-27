@@ -1,5 +1,5 @@
 name: Dom 3D
-version: "0.1.7"
+version: "0.2.0"
 slug: dom3d
 description: Interaktywny dom 3D z edytorem pięter, ścian, mebli i czujek oraz światłem sterowanym encjami
 url: https://github.com/adamskomra-create/ha-dom3d

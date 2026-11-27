@@ -1,0 +1,16 @@
+{
+  "name": "ha-dom3d",
+  "version": "0.1.0",
+  "description": "Dom 3D - dodatek Home Assistant",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs && cd dom3d/app && DOM3D_DEV=1 python3 server.py"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "esbuild": "^0.28.2",
+    "three": "^0.187.0"
+  },
+  "private": true,
+  "type": "module"
+}

@@ -1,0 +1,25 @@
+{
+ "version": 1, "name": "Demo", "north": 0, "lat": 52.41, "lon": 16.85,
+ "floors": [{"id": "f0", "name": "Parter", "level": 0, "elev": 0, "height": 2.6}],
+ "walls": [
+  {"id": "w1", "floor": "f0", "x1": 0, "y1": 0, "x2": 8, "y2": 0, "t": 0.3, "openings": [{"id": "o1", "type": "door", "offset": 3.5, "width": 1.0, "height": 2.1, "sill": 0}]},
+  {"id": "w2", "floor": "f0", "x1": 8, "y1": 0, "x2": 8, "y2": 6, "t": 0.3, "openings": [{"id": "o2", "type": "window", "offset": 2, "width": 1.5, "height": 1.4, "sill": 0.85}]},
+  {"id": "w3", "floor": "f0", "x1": 8, "y1": 6, "x2": 0, "y2": 6, "t": 0.3, "openings": [{"id": "o3", "type": "window", "offset": 1, "width": 3, "height": 2.2, "sill": 0}]},
+  {"id": "w4", "floor": "f0", "x1": 0, "y1": 6, "x2": 0, "y2": 0, "t": 0.3, "openings": []},
+  {"id": "w5", "floor": "f0", "x1": 5, "y1": 0, "x2": 5, "y2": 6, "t": 0.12, "openings": [{"id": "o4", "type": "door", "offset": 2.4, "width": 0.9, "height": 2.05, "sill": 0}]}
+ ],
+ "rooms": [
+  {"id": "r1", "floor": "f0", "name": "Salon", "poly": [[0.15,0.15],[4.94,0.15],[4.94,5.85],[0.15,5.85]], "finish": "DAB_JASNY"},
+  {"id": "r2", "floor": "f0", "name": "Sypialnia", "poly": [[5.06,0.15],[7.85,0.15],[7.85,5.85],[5.06,5.85]], "finish": "DREWNO"}
+ ],
+ "items": [
+  {"id": "i1", "floor": "f0", "type": "SOFA", "x": 2.5, "y": 2.0, "rot": 180},
+  {"id": "i2", "floor": "f0", "type": "LOZKO_2", "x": 6.5, "y": 4.6, "rot": 0}
+ ],
+ "lights": [
+  {"id": "l1", "floor": "f0", "kind": "SUFIT", "x": 2.5, "y": 3, "name": "Salon", "entity": "light.salon"},
+  {"id": "l2", "floor": "f0", "kind": "NOCNA", "x": 5.5, "y": 5.4, "name": "Lampka", "entity": "light.lampka"}
+ ],
+ "sensors": [{"id": "s1", "floor": "f0", "kind": "RUCH", "x": 0.3, "y": 0.3, "name": "Ruch salon", "entity": "binary_sensor.ruch_salon"}],
+ "models": [], "stairs": [], "backgrounds": []
+}

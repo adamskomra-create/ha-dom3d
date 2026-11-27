@@ -31,10 +31,20 @@ WWW = os.path.join(HERE, "www")
 DATA = os.environ.get("DOM3D_DATA", os.path.join(HERE, "..", "devdata") if DEV else "/data")
 FILES = os.path.join(DATA, "files")
 DOM = os.path.join(DATA, "dom.json")
-TOKEN = os.environ.get("SUPERVISOR_TOKEN")
+def _token():
+    t = os.environ.get("SUPERVISOR_TOKEN") or os.environ.get("HASSIO_TOKEN")
+    if t:
+        return t
+    for p in ("/run/s6/container_environment/SUPERVISOR_TOKEN", "/var/run/s6/container_environment/SUPERVISOR_TOKEN"):
+        if os.path.exists(p):
+            return open(p).read().strip()
+    return None
+
+
+TOKEN = _token()
 HA_WS = os.environ.get("DOM3D_HA_WS", "ws://supervisor/core/websocket")
 PORT = int(os.environ.get("DOM3D_PORT", "8099"))
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 
 ALLOWED_EXT = {".glb", ".gltf", ".png", ".jpg", ".jpeg", ".webp", ".hdr"}
 WS_ALLOWED = {"get_states", "config/area_registry/list", "config/floor_registry/list",

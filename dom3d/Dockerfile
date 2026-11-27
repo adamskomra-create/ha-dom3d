@@ -6,4 +6,5 @@ RUN apk add --no-cache python3 py3-aiohttp
 COPY app/ /app/
 WORKDIR /app
 
-CMD ["python3", "-u", "/app/server.py"]
+RUN chmod a+x /app/run.sh
+CMD ["/app/run.sh"]

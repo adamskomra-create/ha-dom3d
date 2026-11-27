@@ -24,6 +24,35 @@ const STYLE = `
 .d3-tag{font:600 11px system-ui,sans-serif;color:#fff;background:rgba(17,24,39,.8);padding:2px 6px;border-radius:6px;white-space:nowrap}
 `;
 
+let _woodTex = null;
+function woodTexture() {
+  if (_woodTex) return _woodTex;
+  const c = document.createElement("canvas");
+  c.width = 1024; c.height = 512;
+  const g = c.getContext("2d");
+  g.fillStyle = "#ffffff"; g.fillRect(0, 0, c.width, c.height);
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  for (let i = 0; i < 260; i++) {
+    const y = rnd() * c.height, amp = 2 + rnd() * 6, f = 0.002 + rnd() * 0.006, ph = rnd() * 6.28;
+    g.strokeStyle = `rgba(110,70,30,${0.04 + rnd() * 0.12})`;
+    g.lineWidth = 0.6 + rnd() * 2.2;
+    g.beginPath();
+    for (let x = 0; x <= c.width; x += 8) g.lineTo(x, y + Math.sin(x * f + ph) * amp);
+    g.stroke();
+  }
+  for (let i = 0; i < 18; i++) { // promienie rdzeniowe dębu
+    g.fillStyle = `rgba(255,240,210,${0.05 + rnd() * 0.08})`;
+    g.fillRect(rnd() * c.width, rnd() * c.height, 20 + rnd() * 60, 1.5);
+  }
+  _woodTex = new THREE.CanvasTexture(c);
+  _woodTex.colorSpace = THREE.SRGBColorSpace;
+  _woodTex.wrapS = _woodTex.wrapT = THREE.RepeatWrapping;
+  _woodTex.repeat.set(0.45, 0.9); // ~2.2 m słojów na teksturę
+  _woodTex.anisotropy = 8;
+  return _woodTex;
+}
+
 function mat(color, rough = 0.8, extra = {}) {
   return new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: 0, ...extra });
 }
@@ -494,8 +523,41 @@ export class Dom3DViewer {
         add(rb(w - 0.4, 0.14, d - 0.3, 0.06), mat(new THREE.Color(color).offsetHSL(0, 0, 0.06), 0.9), 0, 0.49, 0.08);
         break;
       }
+      case "SOFA_L": {
+        // kanapa narożna: główne siedzisko wzdłuż szerokości, szezlong po stronie it.chaise ("L" | "R")
+        const sd = 0.95, side = it.chaise === "R" ? 1 : -1;
+        add(rb(w, 0.42, sd, 0.06), base, 0, 0.21, back + sd / 2);
+        add(rb(w, h - 0.1, 0.22, 0.08), base, 0, (h - 0.1) / 2 + 0.1, back + 0.11);
+        const cw = 0.95;
+        add(rb(cw, 0.42, d - sd, 0.06), base, side * (w / 2 - cw / 2), 0.21, back + sd + (d - sd) / 2);
+        add(rb(0.18, 0.62, sd, 0.07), base, -side * (w / 2 - 0.09), 0.31, back + sd / 2);
+        add(rb(0.2, 0.62, d, 0.07), base, side * (w / 2 - 0.1), 0.31, 0);
+        const cush = mat(new THREE.Color(color).offsetHSL(0, 0, 0.06), 0.9);
+        add(rb(w - 0.5, 0.14, sd - 0.3, 0.06), cush, -side * 0.06, 0.49, back + sd / 2 + 0.08);
+        add(rb(cw - 0.3, 0.14, d - sd - 0.1, 0.06), cush, side * (w / 2 - cw / 2 - 0.05), 0.49, back + sd + (d - sd) / 2);
+        break;
+      }
       case "STOL":
       case "BIURKO": {
+        if (it.shape === "stadium") {
+          // blat: prostokąt z półokrągłymi końcami (R = d/2), krawędź lekko zaokrąglona
+          const topT = it.topT || 0.04, R = d / 2, L = Math.max(0, w - d), bev = 0.006;
+          const sh = new THREE.Shape();
+          sh.moveTo(-L / 2, -R + bev);
+          sh.lineTo(L / 2, -R + bev);
+          sh.absarc(L / 2, 0, R - bev, -Math.PI / 2, Math.PI / 2, false);
+          sh.lineTo(-L / 2, R - bev);
+          sh.absarc(-L / 2, 0, R - bev, Math.PI / 2, (3 * Math.PI) / 2, false);
+          const geo = new THREE.ExtrudeGeometry(sh, { depth: topT - 2 * bev, bevelEnabled: true, bevelThickness: bev, bevelSize: bev, bevelSegments: 3, curveSegments: 48 });
+          geo.rotateX(-Math.PI / 2);
+          const wood = mat(color, 0.55, { map: woodTexture() });
+          add(geo, wood, 0, h - topT + bev, 0);
+          const lr = it.legR || 0.03;
+          const lx = (it.legDx || w * 0.76) / 2 - lr, lz = (it.legDz || d * 0.64) / 2 - lr;
+          const lg = new THREE.CylinderGeometry(lr, lr, h - topT, 32);
+          for (const sx of [-1, 1]) for (const sz of [-1, 1]) add(lg, mat(color, 0.55), sx * lx, (h - topT) / 2, sz * lz);
+          break;
+        }
         if (it.shape === "oval" || it.shape === "round") {
           const top = new THREE.CylinderGeometry(0.5, 0.5, 0.035, 64);
           top.scale(w, 1, it.shape === "round" ? w : d);
@@ -574,7 +636,7 @@ export class Dom3DViewer {
       }
     }
     // znacznik frontu (cienki pasek na górze z przodu - widoczny z góry)
-    if (h > 0.2 && !["ROSLINA", "DYWAN", "WC", "TV", "KRZESLO", "STOL", "BIURKO", "FOTEL", "SOFA"].includes(type)) {
+    if (h > 0.2 && !["ROSLINA", "DYWAN", "WC", "TV", "KRZESLO", "STOL", "BIURKO", "FOTEL", "SOFA", "SOFA_L"].includes(type)) {
       add(new THREE.BoxGeometry(w * 0.6, 0.004, 0.02), mat(0x6b7280, 0.5), 0, h + 0.003, d / 2 - 0.02);
     }
   }

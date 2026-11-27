@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5
+- Stół z blatem "stadion", grubością blatu, rozstawem i średnicą nóg, okleina dębowa z usłojeniem.
+- Kanapa narożna (szezlong lewy/prawy).
+
 ## 0.1.4
 - Bez znacznika frontu na krzesłach, stołach, biurkach i sofach.
 

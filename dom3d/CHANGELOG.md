@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.4
+- Bez znacznika frontu na krzesłach, stołach, biurkach i sofach.
+
 ## 0.1.3
 - Stoły i biurka: kształt blatu owalny lub okrągły.
 

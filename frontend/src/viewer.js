@@ -574,7 +574,7 @@ export class Dom3DViewer {
       }
     }
     // znacznik frontu (cienki pasek na górze z przodu - widoczny z góry)
-    if (h > 0.2 && !["ROSLINA", "DYWAN", "WC", "TV"].includes(type)) {
+    if (h > 0.2 && !["ROSLINA", "DYWAN", "WC", "TV", "KRZESLO", "STOL", "BIURKO", "FOTEL", "SOFA"].includes(type)) {
       add(new THREE.BoxGeometry(w * 0.6, 0.004, 0.02), mat(0x6b7280, 0.5), 0, h + 0.003, d / 2 - 0.02);
     }
   }

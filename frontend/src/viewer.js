@@ -580,6 +580,28 @@ export class Dom3DViewer {
         for (const sx of [-1, 1]) for (const sz of [-1, 1]) add(lg, dark, sx * (w / 2 - 0.06), (h - 0.04) / 2, sz * (d / 2 - 0.06));
         break;
       }
+      case "KRZESLO_J": {
+        // JANINGE: smukłe nogi o zaokrąglonym przekroju, cienkie siedzisko, płaskie oparcie na przedłużonych tylnych nogach
+        const m = mat(color, 0.45);
+        const seatH = 0.45, lt = 0.03;
+        const leg = (x0, z0, x1, z1, y0, y1) => {
+          const len = Math.hypot(x1 - x0, y1 - y0, z1 - z0);
+          const me = add(rb(lt, len, lt, 0.012), m, (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+          me.rotation.z = Math.atan2(x0 - x1, y1 - y0);
+          me.rotation.x = Math.atan2(z1 - z0, y1 - y0);
+          return me;
+        };
+        const fx = w / 2 - 0.045, fz = d / 2 - 0.045;
+        for (const sx of [-1, 1]) {
+          leg(sx * (fx + 0.02), fz + 0.02, sx * (fx - 0.01), fz - 0.03, 0, seatH - 0.02); // przednie, lekko rozstawione
+          leg(sx * (fx + 0.015), -fz - 0.02, sx * (fx - 0.005), -fz - 0.01, 0, h - 0.02); // tylna noga = słupek oparcia (jeden element)
+        }
+        const seat = add(rb(w - 0.05, 0.022, d - 0.07, 0.01), m, 0, seatH, 0.01);
+        seat.rotation.x = -0.03;
+        const backrest = add(rb(w - 0.03, 0.16, 0.022, 0.01), m, 0, h - 0.08, -fz - 0.025);
+        backrest.rotation.x = -0.1;
+        break;
+      }
       case "KRZESLO": {
         add(rb(w, 0.05, d * 0.9, 0.02), base, 0, 0.46, 0.02);
         add(rb(w, 0.42, 0.04, 0.02), base, 0, 0.7, back + 0.03);
@@ -641,7 +663,7 @@ export class Dom3DViewer {
       }
     }
     // znacznik frontu (cienki pasek na górze z przodu - widoczny z góry)
-    if (h > 0.2 && !["ROSLINA", "DYWAN", "WC", "TV", "KRZESLO", "STOL", "BIURKO", "FOTEL", "SOFA", "SOFA_L"].includes(type)) {
+    if (h > 0.2 && !["ROSLINA", "DYWAN", "WC", "TV", "KRZESLO", "KRZESLO_J", "STOL", "BIURKO", "FOTEL", "SOFA", "SOFA_L"].includes(type)) {
       add(new THREE.BoxGeometry(w * 0.6, 0.004, 0.02), mat(0x6b7280, 0.5), 0, h + 0.003, d / 2 - 0.02);
     }
   }

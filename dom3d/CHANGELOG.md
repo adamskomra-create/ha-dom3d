@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.7
+- Nowy mebel: krzesło typu JANINGE (smukłe nogi, płaskie oparcie).
+
 ## 0.1.6
 - Blat z miękkimi końcami (superelipsa: głębokość i płaskość łuku), jaśniejsze usłojenie dębu.
 

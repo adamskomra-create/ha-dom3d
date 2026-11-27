@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.6
+- Blat z miękkimi końcami (superelipsa: głębokość i płaskość łuku), jaśniejsze usłojenie dębu.
+
 ## 0.1.5
 - Stół z blatem "stadion", grubością blatu, rozstawem i średnicą nóg, okleina dębowa z usłojeniem.
 - Kanapa narożna (szezlong lewy/prawy).

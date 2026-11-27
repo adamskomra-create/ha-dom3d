@@ -38,7 +38,7 @@ Inne:
 ## Karta na dashboard
 
 1. Zapisz projekt w panelu - na dole panelu (bez zaznaczenia) zobaczysz adres danych.
-2. **Ustawienia → Panele → ⋮ → Zasoby → Dodaj**: `/local/dom3d/dom3d-card.js?v=0.1.5`, typ **Moduł JavaScript**.
+2. **Ustawienia → Panele → ⋮ → Zasoby → Dodaj**: `/local/dom3d/dom3d-card.js?v=0.1.6`, typ **Moduł JavaScript**.
 3. Dodaj kartę (YAML):
 
 ```yaml

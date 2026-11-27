@@ -35,8 +35,8 @@ function woodTexture() {
   const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   for (let i = 0; i < 260; i++) {
     const y = rnd() * c.height, amp = 2 + rnd() * 6, f = 0.002 + rnd() * 0.006, ph = rnd() * 6.28;
-    g.strokeStyle = `rgba(110,70,30,${0.04 + rnd() * 0.12})`;
-    g.lineWidth = 0.6 + rnd() * 2.2;
+    g.strokeStyle = `rgba(150,100,50,${0.03 + rnd() * 0.07})`;
+    g.lineWidth = 0.5 + rnd() * 1.6;
     g.beginPath();
     for (let x = 0; x <= c.width; x += 8) g.lineTo(x, y + Math.sin(x * f + ph) * amp);
     g.stroke();
@@ -539,16 +539,21 @@ export class Dom3DViewer {
       }
       case "STOL":
       case "BIURKO": {
-        if (it.shape === "stadium") {
-          // blat: prostokąt z półokrągłymi końcami (R = d/2), krawędź lekko zaokrąglona
-          const topT = it.topT || 0.04, R = d / 2, L = Math.max(0, w - d), bev = 0.006;
+        if (it.shape === "stadium" || it.shape === "soft") {
+          // stadium: półokrągłe końce; soft: końce superelipsa (bardziej płaski łuk, zaokrąglone narożniki)
+          const topT = it.topT || 0.04, R = d / 2, bev = 0.003;
+          const e = it.shape === "soft" ? (it.endD || d * 0.42) : R;
+          const n = it.shape === "soft" ? (it.endN || 2.6) : 2;
+          const L = Math.max(0, w - 2 * e);
           const sh = new THREE.Shape();
-          sh.moveTo(-L / 2, -R + bev);
-          sh.lineTo(L / 2, -R + bev);
-          sh.absarc(L / 2, 0, R - bev, -Math.PI / 2, Math.PI / 2, false);
-          sh.lineTo(-L / 2, R - bev);
-          sh.absarc(-L / 2, 0, R - bev, Math.PI / 2, (3 * Math.PI) / 2, false);
-          const geo = new THREE.ExtrudeGeometry(sh, { depth: topT - 2 * bev, bevelEnabled: true, bevelThickness: bev, bevelSize: bev, bevelSegments: 3, curveSegments: 48 });
+          const pts = [];
+          const sp = (v, k) => Math.sign(v) * Math.abs(v) ** (2 / k);
+          for (let i = 0; i <= 64; i++) { const t = -Math.PI / 2 + (Math.PI * i) / 64; pts.push([L / 2 + (e - bev) * sp(Math.cos(t), n), (R - bev) * sp(Math.sin(t), n)]); }
+          for (let i = 0; i <= 64; i++) { const t = Math.PI / 2 + (Math.PI * i) / 64; pts.push([-L / 2 + (e - bev) * sp(Math.cos(t), n), (R - bev) * sp(Math.sin(t), n)]); }
+          sh.moveTo(pts[0][0], pts[0][1]);
+          for (const [x, y] of pts.slice(1)) sh.lineTo(x, y);
+          sh.closePath();
+          const geo = new THREE.ExtrudeGeometry(sh, { depth: topT - 2 * bev, bevelEnabled: true, bevelThickness: bev, bevelSize: bev, bevelSegments: 2, curveSegments: 12 });
           geo.rotateX(-Math.PI / 2);
           const wood = mat(color, 0.55, { map: woodTexture() });
           add(geo, wood, 0, h - topT + bev, 0);

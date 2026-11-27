@@ -1,7 +1,7 @@
 import { Dom3DViewer } from "./viewer.js";
 import { normalize } from "./model.js";
 
-const VERSION = "0.1.2";
+const VERSION = "0.1.3";
 
 class Dom3DCard extends HTMLElement {
   setConfig(config) {

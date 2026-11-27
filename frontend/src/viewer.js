@@ -443,9 +443,9 @@ export class Dom3DViewer {
         s.traverse((o) => { if (o.isMesh) { o.castShadow = o.receiveShadow = true; } if (o.isLight) o.visible = false; });
         g.add(s);
         this.needsRender = true;
-      }).catch(() => this._furnSketch(g, it.type, w, d, h, it.color || pre.color));
+      }).catch(() => this._furnSketch(g, it.type, w, d, h, it.color || pre.color, it));
     } else {
-      this._furnSketch(g, it.type, w, d, h, it.color || pre.color);
+      this._furnSketch(g, it.type, w, d, h, it.color || pre.color, it);
     }
     const sel = new THREE.Mesh(new THREE.BoxGeometry(w + 0.04, h + 0.04, d + 0.04),
       new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.3, depthWrite: false }));
@@ -457,7 +457,7 @@ export class Dom3DViewer {
     return g;
   }
 
-  _furnSketch(g, type, w, d, h, color) {
+  _furnSketch(g, type, w, d, h, color, it = {}) {
     // lokalnie: x = szerokość, z = głębokość (front po stronie +z = plan -y), y = wysokość
     const add = (geo, m, x, y, z) => {
       const me = new THREE.Mesh(geo, m);
@@ -496,6 +496,18 @@ export class Dom3DViewer {
       }
       case "STOL":
       case "BIURKO": {
+        if (it.shape === "oval" || it.shape === "round") {
+          const top = new THREE.CylinderGeometry(0.5, 0.5, 0.035, 64);
+          top.scale(w, 1, it.shape === "round" ? w : d);
+          add(top, base, 0, h - 0.0175, 0);
+          const lg = new THREE.CylinderGeometry(0.03, 0.022, h - 0.035, 12);
+          const lx = w / 2 - Math.min(0.32, w * 0.2), lz = (it.shape === "round" ? w : d) / 2 - 0.16;
+          for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+            const m = add(lg, base, sx * lx, (h - 0.035) / 2, sz * lz);
+            m.rotation.z = sx * 0.06; m.rotation.x = -sz * 0.06;
+          }
+          break;
+        }
         add(rb(w, 0.04, d, 0.01), base, 0, h - 0.02, 0);
         const lg = new THREE.BoxGeometry(0.05, h - 0.04, 0.05);
         for (const sx of [-1, 1]) for (const sz of [-1, 1]) add(lg, dark, sx * (w / 2 - 0.06), (h - 0.04) / 2, sz * (d / 2 - 0.06));

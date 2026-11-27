@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.3
+- Stoły i biurka: kształt blatu owalny lub okrągły.
+
 ## 0.1.2
 - Modele .glb skompresowane meshopt (np. z gltf-transform) są obsługiwane.
 - Import JSON i wgrywanie plików przez jedno stałe pole pliku.

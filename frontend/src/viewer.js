@@ -602,6 +602,77 @@ export class Dom3DViewer {
         backrest.rotation.x = -0.1;
         break;
       }
+      case "WITRYNA": {
+        // IKEA PS 2026: stalowa witryna z siatki, 2 drzwi, nóżki
+        const m = mat(color, 0.5);
+        const legH = 0.08, t = 0.02;
+        for (const sx of [-1, 1]) for (const sz of [-1, 1]) add(rb(0.025, legH, 0.025, 0.006), m, sx * (w / 2 - 0.03), legH / 2, sz * (d / 2 - 0.03));
+        const body = h - legH;
+        for (const sx of [-1, 1]) add(rb(t, body, d, 0.004), m, sx * (w / 2 - t / 2), legH + body / 2, 0);
+        add(rb(w, t, d, 0.004), m, 0, h - t / 2, 0);
+        add(rb(w, t, d, 0.004), m, 0, legH + t / 2, 0);
+        add(rb(w, body, 0.006, 0.002), mat(color, 0.6), 0, legH + body / 2, -d / 2 + 0.003);
+        const mesh = new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.2, transparent: true, opacity: 0.55 });
+        for (const sx of [-1, 1]) add(rb(w / 2 - 0.01, body - 0.02, 0.012, 0.003), mesh, sx * w / 4, legH + body / 2, d / 2 - 0.006);
+        add(new THREE.BoxGeometry(w - 0.04, 0.008, d - 0.04), mat(0xdfeef0, 0.05, { transparent: true, opacity: 0.35 }), 0, legH + body * 0.55, 0);
+        break;
+      }
+      case "STOLIK": {
+        // JYSK SNEJBJERG: chromowana rama z rur, szklany blat i półka, kółka
+        const chrome = new THREE.MeshStandardMaterial({ color: 0xdfe3e6, roughness: 0.15, metalness: 1 });
+        const glass = new THREE.MeshStandardMaterial({ color: 0x9aa4a8, roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.45 });
+        const r = 0.012, cw = 0.05;
+        const tube = (len) => new THREE.CylinderGeometry(r, r, len, 12);
+        for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+          add(tube(h - cw), chrome, sx * (w / 2 - 0.03), cw + (h - cw) / 2, sz * (d / 2 - 0.03));
+          add(new THREE.CylinderGeometry(0.025, 0.025, 0.02, 12), dark, sx * (w / 2 - 0.03), 0.025, sz * (d / 2 - 0.03)).rotation.z = Math.PI / 2;
+        }
+        for (const y of [h - 0.03, 0.14]) {
+          for (const sz of [-1, 1]) add(tube(w - 0.06), chrome, 0, y, sz * (d / 2 - 0.03)).rotation.z = Math.PI / 2;
+          for (const sx of [-1, 1]) add(tube(d - 0.06), chrome, sx * (w / 2 - 0.03), y, 0).rotation.x = Math.PI / 2;
+        }
+        add(new THREE.BoxGeometry(w - 0.08, 0.008, d - 0.08), glass, 0, h - 0.025, 0);
+        add(new THREE.BoxGeometry(w * 0.55, 0.008, d - 0.08), glass, -w * 0.18, 0.15, 0);
+        break;
+      }
+      case "FOTEL_OBR": {
+        // IKEA DYVLINGE: obrotowy fotel na chromowanej gwieździe, pikowane siedzisko i oparcie jednym łukiem
+        const fab = mat(color, 0.95);
+        const chrome = new THREE.MeshStandardMaterial({ color: 0xdfe3e6, roughness: 0.15, metalness: 1 });
+        for (let k = 0; k < 5; k++) {
+          const a = (k / 5) * Math.PI * 2;
+          const leg = add(new THREE.BoxGeometry(0.33, 0.025, 0.04), chrome, Math.cos(a) * 0.16, 0.03, Math.sin(a) * 0.16);
+          leg.rotation.y = -a;
+        }
+        add(new THREE.CylinderGeometry(0.03, 0.03, 0.22, 16), chrome, 0, 0.14, 0);
+        const seat = add(rb(w, 0.18, d * 0.62, 0.08), fab, 0, 0.34, 0.08);
+        seat.rotation.x = 0.06;
+        const backr = add(rb(w * 0.95, h - 0.2, 0.2, 0.08), fab, 0, (h - 0.2) / 2 + 0.25, back + 0.16);
+        backr.rotation.x = -0.32;
+        break;
+      }
+      case "LAMPA_PS": {
+        // IKEA PS 2026: cienka rura, ramię u góry, stożkowy klosz w dół, stożkowa podstawa
+        const m = mat(color, 0.45);
+        add(new THREE.ConeGeometry(0.14, 0.09, 32, 1, true), m, 0, 0.045, 0);
+        add(new THREE.CylinderGeometry(0.012, 0.012, h - 0.05, 12), m, 0, (h - 0.05) / 2 + 0.05, 0);
+        const arm = 0.45;
+        add(new THREE.CylinderGeometry(0.012, 0.012, arm, 12), m, 0, h - 0.012, arm / 2).rotation.x = Math.PI / 2;
+        add(new THREE.ConeGeometry(0.08, 0.12, 32, 1, true), m, 0, h - 0.09, arm);
+        break;
+      }
+      case "LAMPA_SIMRI": {
+        // IKEA SIMRISHAMN: chromowana tarcza, 3 pręty, 3 mleczne kule
+        const chrome = new THREE.MeshStandardMaterial({ color: 0xdfe3e6, roughness: 0.15, metalness: 1 });
+        const opal = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3, emissive: 0xfff4e0, emissiveIntensity: 0.15 });
+        add(new THREE.CylinderGeometry(0.15, 0.15, 0.015, 40), chrome, 0, 0.008, 0);
+        const rods = [[-0.07, h - 0.43], [0.0, h - 0.27], [0.07, h - 0.08]];
+        rods.forEach(([x, top], i) => {
+          add(new THREE.CylinderGeometry(0.006, 0.006, top, 10), chrome, x, top / 2, (i - 1) * 0.02);
+          add(new THREE.SphereGeometry(0.075, 24, 16), opal, x, top + 0.07, (i - 1) * 0.02);
+        });
+        break;
+      }
       case "KRZESLO_U": {
         // URBAN (IKEA): krzesło dziecięce z polipropylenu - wysokie siedzisko 53 cm, rozstawione nogi, podnóżek, wyprofilowane oparcie
         const m = mat(color, 0.35);
@@ -686,7 +757,7 @@ export class Dom3DViewer {
       }
     }
     // znacznik frontu (cienki pasek na górze z przodu - widoczny z góry)
-    if (h > 0.2 && !["ROSLINA", "DYWAN", "WC", "TV", "KRZESLO", "KRZESLO_J", "KRZESLO_U", "STOL", "BIURKO", "FOTEL", "SOFA", "SOFA_L"].includes(type)) {
+    if (h > 0.2 && !["ROSLINA", "DYWAN", "WC", "TV", "KRZESLO", "KRZESLO_J", "KRZESLO_U", "STOL", "STOLIK", "FOTEL_OBR", "LAMPA_PS", "LAMPA_SIMRI", "BIURKO", "FOTEL", "SOFA", "SOFA_L"].includes(type)) {
       add(new THREE.BoxGeometry(w * 0.6, 0.004, 0.02), mat(0x6b7280, 0.5), 0, h + 0.003, d / 2 - 0.02);
     }
   }

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.2
+- Nowe meble: witryna IKEA PS 2026, stolik kawowy JYSK SNEJBJERG, fotel obrotowy IKEA DYVLINGE, lampy podłogowe IKEA PS 2026 i SIMRISHAMN.
+
 ## 0.2.1
 - Nowy mebel: krzesło dziecięce IKEA URBAN (KRZESLO_U).
 

@@ -44,7 +44,7 @@ def _token():
 TOKEN = _token()
 HA_WS = os.environ.get("DOM3D_HA_WS", "ws://supervisor/core/websocket")
 PORT = int(os.environ.get("DOM3D_PORT", "8099"))
-VERSION = "0.2.1"
+VERSION = "0.2.2"
 
 ALLOWED_EXT = {".glb", ".gltf", ".png", ".jpg", ".jpeg", ".webp", ".hdr"}
 WS_ALLOWED = {"get_states", "config/area_registry/list", "config/floor_registry/list",

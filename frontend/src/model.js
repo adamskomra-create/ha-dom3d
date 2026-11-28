@@ -10,6 +10,7 @@ export const FURN = {
   BIURKO: { name: "Biurko", w: 1.20, d: 0.60, h: 0.75, color: "#c9b08a" },
   KRZESLO: { name: "Krzesło", w: 0.45, d: 0.50, h: 0.90, color: "#55585e" },
   KRZESLO_J: { name: "Krzesło JANINGE", w: 0.50, d: 0.47, h: 0.76, color: "#f2c300" },
+  KRZESLO_U: { name: "Krzesło dziecięce URBAN", w: 0.45, d: 0.48, h: 0.79, color: "#f4f4f1" },
   SOFA: { name: "Sofa", w: 2.20, d: 0.95, h: 0.80, color: "#8c979c" },
   SOFA_L: { name: "Kanapa narożna", w: 2.50, d: 1.80, h: 0.85, color: "#8c979c" },
   FOTEL: { name: "Fotel", w: 0.80, d: 0.85, h: 0.80, color: "#8c979c" },

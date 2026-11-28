@@ -602,6 +602,29 @@ export class Dom3DViewer {
         backrest.rotation.x = -0.1;
         break;
       }
+      case "KRZESLO_U": {
+        // URBAN (IKEA): krzesło dziecięce z polipropylenu - wysokie siedzisko 53 cm, rozstawione nogi, podnóżek, wyprofilowane oparcie
+        const m = mat(color, 0.35);
+        const seatH = 0.53, lt = 0.034;
+        const leg = (x0, z0, x1, z1, y0, y1) => {
+          const len = Math.hypot(x1 - x0, y1 - y0, z1 - z0);
+          const me = add(rb(lt, len, lt * 1.3, 0.014), m, (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+          me.rotation.z = Math.atan2(x0 - x1, y1 - y0);
+          me.rotation.x = Math.atan2(z1 - z0, y1 - y0);
+          return me;
+        };
+        const bx = w / 2 - 0.02, bz = d / 2 - 0.02, tx = 0.15, tz = 0.13;
+        for (const sx of [-1, 1]) {
+          leg(sx * bx, bz, sx * tx, tz, 0, seatH - 0.02);
+          leg(sx * bx, -bz, sx * tx, -tz, 0, seatH - 0.02);
+          leg(sx * tx, -tz, sx * (tx - 0.01), -tz - 0.06, seatH, h - 0.03); // słupki oparcia
+        }
+        add(rb(2 * (tx + 0.04) + 0.02, 0.03, 0.05, 0.012), m, 0, 0.24, bz - 0.09); // podnóżek
+        add(rb(0.34, 0.03, 0.31, 0.03), m, 0, seatH, 0.01);
+        const back = add(rb(0.34, 0.2, 0.025, 0.012), m, 0, h - 0.12, -tz - 0.05);
+        back.rotation.x = -0.12;
+        break;
+      }
       case "KRZESLO": {
         add(rb(w, 0.05, d * 0.9, 0.02), base, 0, 0.46, 0.02);
         add(rb(w, 0.42, 0.04, 0.02), base, 0, 0.7, back + 0.03);
@@ -663,7 +686,7 @@ export class Dom3DViewer {
       }
     }
     // znacznik frontu (cienki pasek na górze z przodu - widoczny z góry)
-    if (h > 0.2 && !["ROSLINA", "DYWAN", "WC", "TV", "KRZESLO", "KRZESLO_J", "STOL", "BIURKO", "FOTEL", "SOFA", "SOFA_L"].includes(type)) {
+    if (h > 0.2 && !["ROSLINA", "DYWAN", "WC", "TV", "KRZESLO", "KRZESLO_J", "KRZESLO_U", "STOL", "BIURKO", "FOTEL", "SOFA", "SOFA_L"].includes(type)) {
       add(new THREE.BoxGeometry(w * 0.6, 0.004, 0.02), mat(0x6b7280, 0.5), 0, h + 0.003, d / 2 - 0.02);
     }
   }

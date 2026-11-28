@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.1
+- Nowy mebel: krzesło dziecięce IKEA URBAN (KRZESLO_U).
+
 ## 0.2.0
 - Tryb "Render": fotorealistyczny rzut z Blendera (dzień/noc przenikane wg sun.sun) + warstwa światła dla każdej lampy, włączana i ściemniana stanem encji. Klikalne punkty lamp.
 - Karta: przełącznik 2D / 3D / Render, opcja `view: render`, `hotspots: false`.

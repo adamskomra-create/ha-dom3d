@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.4
+- Nowe obiekty: klatka dla psa (Ferplast Superior), konsola Xbox Series X, pad.
+
 ## 0.2.3
 - Ręczne obracanie: pomarańczowy uchwyt obrotu przy zaznaczonym meblu, lampie, modelu (co 15°, z Shift co 1°); klawisze Q/E ±15° (Shift ±1°).
 - Stolik SNEJBJERG: wierniejszy szkic (ramy U z uchwytami, półka szkło + kratka, kółka).

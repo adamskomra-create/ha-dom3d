@@ -696,6 +696,37 @@ export class Dom3DViewer {
         });
         break;
       }
+      case "KLATKA": {
+        // Ferplast Superior: kratka metalowa, plastikowa kuweta na dole, plastikowa rama dachu, drzwi z przodu i z boku
+        const tray = mat(0x2b2d30, 0.6), wire = mat(color, 0.4, { metalness: 0.6 });
+        add(rb(w, 0.12, d, 0.02), tray, 0, 0.07, 0);
+        add(rb(w, 0.035, d, 0.012), tray, 0, h - 0.018, 0);
+        const bar = (x, z, len, vert) => add(new THREE.CylinderGeometry(0.003, 0.003, len, 6), wire, x, vert ? 0.13 + len / 2 : 0, z);
+        for (let x = -w / 2 + 0.03; x <= w / 2 - 0.03; x += 0.035) { bar(x, d / 2, h - 0.17, true); bar(x, -d / 2, h - 0.17, true); }
+        for (let z = -d / 2 + 0.03; z <= d / 2 - 0.03; z += 0.035) { bar(-w / 2, z, h - 0.17, true); bar(w / 2, z, h - 0.17, true); }
+        for (let y = 0.2; y < h - 0.05; y += 0.12) {
+          for (const sz of [-1, 1]) { const b = add(new THREE.CylinderGeometry(0.003, 0.003, w, 6), wire, 0, y, sz * d / 2); b.rotation.z = Math.PI / 2; }
+          for (const sx of [-1, 1]) { const b = add(new THREE.CylinderGeometry(0.003, 0.003, d, 6), wire, sx * w / 2, y, 0); b.rotation.x = Math.PI / 2; }
+        }
+        const roof = new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.5, transparent: true, opacity: 0.35 });
+        add(new THREE.BoxGeometry(w - 0.04, 0.004, d - 0.04), roof, 0, h - 0.01, 0);
+        break;
+      }
+      case "KONSOLA": {
+        // Xbox Series X: czarny monolit, na górze wklęsła kratka wentylacyjna z zielonym akcentem
+        add(rb(w, h, d, 0.004), mat(color, 0.55), 0, h / 2, 0);
+        add(new THREE.CylinderGeometry(w * 0.45, w * 0.45, 0.004, 32), mat(0x1f3b26, 0.6), 0, h + 0.001, 0);
+        break;
+      }
+      case "PAD": {
+        const m = mat(color, 0.45);
+        add(rb(0.09, 0.035, 0.06, 0.015), m, 0, 0.03, 0);
+        for (const sx of [-1, 1]) { const gr = add(rb(0.045, 0.04, 0.085, 0.018), m, sx * 0.05, 0.028, 0.015); gr.rotation.y = sx * 0.35; }
+        const st = mat(0x222222, 0.6);
+        add(new THREE.CylinderGeometry(0.009, 0.009, 0.012, 16), st, -0.027, 0.053, -0.01);
+        add(new THREE.CylinderGeometry(0.009, 0.009, 0.012, 16), st, 0.015, 0.053, 0.012);
+        break;
+      }
       case "KRZESLO_U": {
         // URBAN (IKEA): krzesło dziecięce z polipropylenu - wysokie siedzisko 53 cm, rozstawione nogi, podnóżek, wyprofilowane oparcie
         const m = mat(color, 0.35);

@@ -53,7 +53,7 @@ export class Editor {
   _hint(extra = "") {
     const H = {
       view: "Podgląd: kliknij lampę, żeby ją przełączyć. Przeciągaj, żeby przesuwać widok.",
-      select: "Klik = zaznacz, przeciągnij = przesuń. R obrót 90°, Shift+R -90°, Del usuń, Ctrl+D duplikuj. Puste tło = przesuwanie widoku.",
+      select: "Klik = zaznacz, przeciągnij = przesuń. Obrót: przeciągnij pomarańczowy uchwyt (co 15°, z Shift co 1°), Q/E ±15° (Shift ±1°), R 90°. Del usuń, Ctrl+D duplikuj. Puste tło = przesuwanie widoku.",
       wall: "Klikaj kolejne narożniki. Wpisz długość (np. 3.45) i Enter. Shift = dowolny kąt. Esc/prawy = koniec.",
       room: "Przeciągnij prostokąt pokoju.",
       window: "Kliknij na ścianę, żeby wstawić okno.",
@@ -268,6 +268,8 @@ export class Editor {
     if (this.tool === "select" && this.store.sel) {
       if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); this.deleteSelected(); }
       if (e.key.toLowerCase() === "r") { e.preventDefault(); this.rotateSelected(e.shiftKey ? -90 : 90); }
+      if (e.key.toLowerCase() === "q") { e.preventDefault(); this.rotateSelected(e.shiftKey ? 1 : 15); return; }
+      if (e.key.toLowerCase() === "e") { e.preventDefault(); this.rotateSelected(e.shiftKey ? -1 : -15); return; }
       const arrows = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] };
       if (arrows[e.key]) {
         e.preventDefault();
@@ -385,6 +387,14 @@ export class Editor {
         if (!r) return;
         const sp = e.altKey ? p : this._snapGrid(p);
         r.poly[h.i] = [round(sp.x), round(sp.y)];
+      } else if (h.kind === "rotate") {
+        const o = findAny(dom, h.id);
+        if (!o) return;
+        let deg = (Math.atan2(p.x - h.cx, -(p.y - h.cy)) * 180) / Math.PI;
+        const step = e.shiftKey ? 1 : 15;          // domyślnie co 15°, z Shift co 1°
+        deg = Math.round(deg / step) * step;
+        o.rot = ((deg % 360) + 360) % 360;
+        this._hint(`obrót ${o.rot}°  (Shift = co 1°)`);
       }
     }, { history: false, rebuild: "throttle" });
     this.refreshHandles();
@@ -497,6 +507,24 @@ export class Editor {
     if (w) { add(w.x1, w.y1, { kind: "wallEnd", id: w.id, end: 1 }); add(w.x2, w.y2, { kind: "wallEnd", id: w.id, end: 2 }); }
     const r = this.dom.rooms.find((x) => x.id === this.store.sel);
     if (r) r.poly.forEach(([x, y], i) => add(x, y, { kind: "roomVert", id: r.id, i }));
+    // uchwyt obrotu (pomarańczowy) dla mebli, modeli, lamp i podkładów
+    const o = ["items", "models", "lights", "backgrounds"].map((c) => (this.dom[c] || []).find((x) => x.id === this.store.sel)).find(Boolean);
+    if (o && o.x !== undefined) {
+      const preset = (FURN && FURN[o.type]) || {};
+      const R = Math.max(o.w || preset.w || 0.4, o.d || preset.d || 0.4, o.width || 0) / 2 + 0.35;
+      const t = ((o.rot || 0) * Math.PI) / 180;
+      const hx = o.x + Math.sin(t) * R, hy = o.y - Math.cos(t) * R;
+      add(hx, hy, { kind: "rotate", id: o.id, cx: o.x, cy: o.y });
+      const last = this.handles[this.handles.length - 1].mesh;
+      last.material.color.set(0xf59e0b);
+      const ring = new THREE.Mesh(new THREE.RingGeometry(R - 0.012, R + 0.012, 96), new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.55, depthTest: false, side: THREE.DoubleSide }));
+      ring.rotation.x = -Math.PI / 2;
+      ring.renderOrder = 19;
+      ring.position.set(o.x, last.position.y - 0.01, -o.y);
+      ring.raycast = () => {};
+      this.overlay.add(ring);
+      this.handles.push({ mesh: ring, kind: "ring" });
+    }
     this.v.render();
   }
 

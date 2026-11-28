@@ -618,21 +618,44 @@ export class Dom3DViewer {
         break;
       }
       case "STOLIK": {
-        // JYSK SNEJBJERG: chromowana rama z rur, szklany blat i półka, kółka
-        const chrome = new THREE.MeshStandardMaterial({ color: 0xdfe3e6, roughness: 0.15, metalness: 1 });
-        const glass = new THREE.MeshStandardMaterial({ color: 0x9aa4a8, roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.45 });
-        const r = 0.012, cw = 0.05;
-        const tube = (len) => new THREE.CylinderGeometry(r, r, len, 12);
-        for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
-          add(tube(h - cw), chrome, sx * (w / 2 - 0.03), cw + (h - cw) / 2, sz * (d / 2 - 0.03));
-          add(new THREE.CylinderGeometry(0.025, 0.025, 0.02, 12), dark, sx * (w / 2 - 0.03), 0.025, sz * (d / 2 - 0.03)).rotation.z = Math.PI / 2;
+        // JYSK SNEJBJERG 80x61x44: dwie ramy U z rury (nogi + uchwyt nad blatem na krótszych bokach),
+        // podłużne rury pod blatem i pod półką, dymiony blat, dolna półka: szkło + kratka z prętów, 4 kółka
+        const chrome = new THREE.MeshStandardMaterial({ color: 0xf2f4f6, roughness: 0.28, metalness: 0.65 });
+        const smoke = new THREE.MeshStandardMaterial({ color: 0x5b5148, roughness: 0.05, transparent: true, opacity: 0.55 });
+        const clear = new THREE.MeshStandardMaterial({ color: 0xcfe3dc, roughness: 0.05, transparent: true, opacity: 0.35 });
+        const r = 0.0125, R = 0.045, zc = 0.075, zg = 0.37, zt = h, zb = 0.12;
+        const xe = w / 2 - r, ye = d / 2 - r;
+        const tube = (x0, y0, z0, x1, y1, z1, rr = r) => {
+          const a = new THREE.Vector3(x0, y0, z0), b2 = new THREE.Vector3(x1, y1, z1);
+          const len = a.distanceTo(b2);
+          const me = add(new THREE.CylinderGeometry(rr, rr, len, 14), chrome, (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+          me.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), b2.clone().sub(a).normalize());
+          return me;
+        };
+        for (const sx of [-1, 1]) {
+          const x = sx * xe;
+          tube(x, zc, -ye, x, zt - R, -ye); tube(x, zc, ye, x, zt - R, ye);              // nogi
+          tube(x, zt, -ye + R, x, zt, ye - R);                                             // uchwyt nad blatem
+          const arc = (sz) => { for (let k = 0; k < 6; k++) {                              // gięcie rury
+            const a0 = (k / 6) * Math.PI / 2, a1 = ((k + 1) / 6) * Math.PI / 2;
+            tube(x, zt - R + Math.sin(a0) * R, sz * (ye - R + Math.cos(a0) * R), x, zt - R + Math.sin(a1) * R, sz * (ye - R + Math.cos(a1) * R));
+          } };
+          arc(1); arc(-1);
+          // kółka
+          for (const sz of [-1, 1]) {
+            add(new THREE.CylinderGeometry(0.016, 0.016, 0.02, 12), chrome, x, zc - 0.01, sz * ye);
+            const wh = add(new THREE.CylinderGeometry(0.032, 0.032, 0.022, 20), dark, x, 0.032, sz * ye + 0.012);
+            wh.rotation.x = Math.PI / 2; wh.rotation.z = Math.PI / 2;
+          }
         }
-        for (const y of [h - 0.03, 0.14]) {
-          for (const sz of [-1, 1]) add(tube(w - 0.06), chrome, 0, y, sz * (d / 2 - 0.03)).rotation.z = Math.PI / 2;
-          for (const sx of [-1, 1]) add(tube(d - 0.06), chrome, sx * (w / 2 - 0.03), y, 0).rotation.x = Math.PI / 2;
+        for (const sz of [-1, 1]) { tube(-xe, zg, sz * ye, xe, zg, sz * ye); tube(-xe, zb, sz * ye, xe, zb, sz * ye); }
+        add(new THREE.BoxGeometry(2 * xe - 0.03, 0.006, 2 * ye + 0.01), smoke, 0, zg + r + 0.003, 0);
+        const gw = (2 * xe) * 0.6;
+        add(new THREE.BoxGeometry(gw, 0.006, 2 * ye - 0.01), clear, -xe + gw / 2 + 0.01, zb + r + 0.003, 0);
+        for (let k = 0; k < 10; k++) {
+          const x = -xe + gw + 0.04 + k * ((2 * xe - gw - 0.06) / 9);
+          tube(x, zb + r * 0.6, -ye, x, zb + r * 0.6, ye, 0.004);
         }
-        add(new THREE.BoxGeometry(w - 0.08, 0.008, d - 0.08), glass, 0, h - 0.025, 0);
-        add(new THREE.BoxGeometry(w * 0.55, 0.008, d - 0.08), glass, -w * 0.18, 0.15, 0);
         break;
       }
       case "FOTEL_OBR": {

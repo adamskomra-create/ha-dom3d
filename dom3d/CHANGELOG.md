@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.3
+- Ręczne obracanie: pomarańczowy uchwyt obrotu przy zaznaczonym meblu, lampie, modelu (co 15°, z Shift co 1°); klawisze Q/E ±15° (Shift ±1°).
+- Stolik SNEJBJERG: wierniejszy szkic (ramy U z uchwytami, półka szkło + kratka, kółka).
+
 ## 0.2.2
 - Nowe meble: witryna IKEA PS 2026, stolik kawowy JYSK SNEJBJERG, fotel obrotowy IKEA DYVLINGE, lampy podłogowe IKEA PS 2026 i SIMRISHAMN.
 
